@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulazione Concorso Operatore Socio Sanitario</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            margin: 0;
+            padding: 20px;
+            color: #f0f0f0;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            color: #ffd700;
+            text-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700;
+            animation: glow 2s infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700; }
+            to { text-shadow: 0 0 20px #ffd700, 0 0 30px #ffd700; }
+        }
+
+        #timer {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 1.5em;
+            color: #00eaff;
+            text-shadow: 0 0 5px #00eaff;
+        }
+
+        .question-nav {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .question-box {
+            width: 40px;
+            height: 40px;
+            margin: 8px;
+            background: linear-gradient(45deg, #333, #555);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .question-box:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 15px #ffd700;
+        }
+
+        .question-box.answered {
+            background: linear-gradient(45deg, #ffd700, #ffaa00);
+            box-shadow: 0 0 15px #ffd700;
+        }
+
+        .question {
+            margin-bottom: 20px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .question.active {
+            display: block;
+        }
+
+        .question h3 {
+            margin: 0 0 15px 0;
+            color: #ffffff;
+            font-size: 1.6em;
+            text-shadow: 0 0 3px rgba(255, 255, 255, 0.5);
+            line-height: 1.4;
+        }
+
+        .option {
+            margin: 10px 0;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            color: #ffffff;
+            font-size: 1.2em;
+            font-weight: 500;
+        }
+
+        .option:hover {
+            background: rgba(255, 255, 255, 0.35);
+            transform: translateX(5px);
+        }
+
+        .option.correct {
+            background: linear-gradient(90deg, #00eaff, #00b8d4);
+            color: #fff;
+            box-shadow: 0 0 15px #00eaff;
+        }
+
+        .option.wrong {
+            background: linear-gradient(90deg, #ff5252, #d81b60);
+            color: #fff;
+            box-shadow: 0 0 15px #ff5252;
+        }
+
+        .lamp {
+            display: none;
+            margin-left: 15px;
+            cursor: pointer;
+            font-size: 1.5em;
+            color: #ffd700;
+            text-shadow: 0 0 10px #ffd700;
+            transition: transform 0.3s ease;
+        }
+
+        .lamp:hover {
+            transform: scale(1.2);
+        }
+
+        .explanation {
+            margin-top: 15px;
+            font-style: italic;
+            color: #f0f0f0;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+            animation: slideIn 0.5s ease;
+            font-size: 1.1em;
+            line-height: 1.5;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+        }
+
+        .nav-button {
+            padding: 12px 25px;
+            background: linear-gradient(45deg, #ffd700, #ffaa00);
+            color: #1a1a2e;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1.2em;
+            box-shadow: 0 0 10px #ffd700;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .nav-button:disabled {
+            background: #666;
+            color: #ccc;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        .nav-button:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px #ffd700;
+        }
+
+        button#submit {
+            display: block;
+            width: 250px;
+            margin: 20px auto;
+            padding: 15px;
+            background: linear-gradient(45deg, #00eaff, #00b8d4);
+            color: #1a1a2e;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1.3em;
+            box-shadow: 0 0 15px #00eaff;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        button#submit:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 25px #00eaff;
+        }
+
+        #result {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1.8em;
+            color: #ffd700;
+            text-shadow: 0 0 10px #ffd700;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1>Simulazione Concorso Operatore Socio Sanitario</h1>
+        <div class="question-nav" id="questionNav"></div>
+        <div id="timer">Tempo rimanente: <span id="time">30:00</span></div>
+        <div id="quiz"></div>
+        <div class="navigation">
+            <button class="nav-button" id="prev" disabled>⬅ Indietro</button>
+            <button class="nav-button" id="next">Avanti ➡</button>
+        </div>
+        <button id="submit">Invia Risposte</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        // Array di domande con spiegazioni dettagliate e professionali
+        const questions = [
+            {
+                question: "La figura professionale dell’Operatore Socio Sanitario (OSS) viene istituita con:",
+                options: ["Seconda riforma del sistema sanitario", "Terza riforma del sistema sanitario", "Atto del 22/2/2001 della Conferenza Stato-Regioni", "D.P.R. 28/11/90 n. 384"],
+                correct: "Atto del 22/2/2001 della Conferenza Stato-Regioni",
+                explanation: "La figura dell’Operatore Socio Sanitario (OSS) è stata formalmente istituita in Italia con l’Accordo Stato-Regioni del 22 febbraio 2001, che ha definito il profilo professionale, le competenze e il percorso formativo necessario per questa qualifica. Questo atto rappresenta un punto di svolta nella regolamentazione delle professioni sanitarie di supporto, integrando le funzioni precedentemente svolte da figure come l’OTA e l’ADB."
+            },
+            {
+                question: "Tra le mansioni dell’OSS non vi è:",
+                options: ["Cura della persona autosufficiente", "Registrazione del carico e scarico delle medicine", "Supporto nelle attività quotidiane", "Aiuto domestico"],
+                correct: "Registrazione del carico e scarico delle medicine",
+                explanation: "La registrazione del carico e scarico delle medicine è una competenza riservata al personale infermieristico o farmacistico, in quanto richiede conoscenze specifiche sulla gestione dei farmaci e responsabilità legali connesse alla loro somministrazione. L’OSS, invece, si occupa di attività di assistenza diretta alla persona, come l’igiene, il supporto nelle attività quotidiane e l’aiuto domestico, ma non ha autonomia nella gestione farmacologica."
+            },
+            {
+                question: "Il monte ore minimo per conseguire il modulo OSS con formazione complementare (OSSS) è:",
+                options: ["200 ore", "400 ore", "600 ore", "1000 ore"],
+                correct: "400 ore",
+                explanation: "Il modulo di formazione complementare per Operatore Socio Sanitario con Specializzazione (OSSS) richiede un minimo di 400 ore, come stabilito dalle normative regionali in conformità all’Accordo Stato-Regioni del 16 gennaio 2003. Questo percorso aggiuntivo amplia le competenze dell’OSS base, includendo attività come la somministrazione di farmaci sotto supervisione infermieristica e l’esecuzione di semplici procedure sanitarie."
+            },
+            {
+                question: "Con il termine 'Anuria' si indica:",
+                options: ["Riapertura di una ferita", "Curvatura della colonna vertebrale", "Accumulo di liquido nell’addome", "Mancata produzione di urina"],
+                correct: "Mancata produzione di urina",
+                explanation: "L’anuria è una condizione patologica caratterizzata dall’assenza o dalla riduzione significativa della produzione di urina (meno di 100 ml nelle 24 ore). È spesso associata a insufficienza renale acuta o cronica, ostruzioni delle vie urinarie o gravi stati di disidratazione, e richiede un intervento medico immediato per identificarne la causa e prevenire complicanze."
+            },
+            {
+                question: "Il termine 'Diuresi' indica:",
+                options: ["Urina prodotta in un periodo di tempo", "Minzione difficoltosa", "Presenza di sangue nelle urine", "Rimozione di liquidi"],
+                correct: "Urina prodotta in un periodo di tempo",
+                explanation: "La diuresi si riferisce alla quantità di urina prodotta da un individuo in un determinato intervallo di tempo, solitamente misurata in millilitri nelle 24 ore. È un indicatore fondamentale della funzionalità renale e dell’equilibrio idrico corporeo, monitorato frequentemente in ambito sanitario per valutare lo stato di salute del paziente."
+            },
+            {
+                question: "L’emoglobina è una proteina in grado di:",
+                options: ["Trasportare ossigeno nel sangue", "Rinforzare le ossa", "Aumentare il sodio", "Ridurre il ferro"],
+                correct: "Trasportare ossigeno nel sangue",
+                explanation: "L’emoglobina è una metalloproteina presente nei globuli rossi, responsabile del trasporto dell’ossigeno dai polmoni ai tessuti corporei e del ritorno dell’anidride carbonica ai polmoni per l’espirazione. La sua struttura contiene ferro, che le permette di legarsi reversibilmente all’ossigeno, rendendola essenziale per la respirazione cellulare."
+            },
+            {
+                question: "Tra le categorie immuni dall’AIDS ci sono:",
+                options: ["Bambini fino a tre anni", "Donne in menopausa", "Nessuna categoria immune", "Uomini oltre i 75 anni"],
+                correct: "Nessuna categoria immune",
+                explanation: "L’AIDS, causato dal virus HIV, non presenta categorie naturalmente immuni. Il virus può infettare individui di qualsiasi età, sesso o condizione fisiologica attraverso vie di trasmissione come il sangue, i rapporti sessuali non protetti o la trasmissione verticale da madre a figlio. L’immunità è possibile solo con terapie antiretrovirali o misure preventive, non per caratteristiche intrinseche."
+            },
+            {
+                question: "L’OSS deve eseguire sempre i compiti forniti dall’infermiere?",
+                options: ["Sì, se espressi chiaramente", "Solo se scritti nel registro", "Solo se rientrano nel profilo OSS", "Sì, sempre e comunque"],
+                correct: "Solo se rientrano nel profilo OSS",
+                explanation: "L’OSS opera sotto la supervisione dell’infermiere, ma deve eseguire solo i compiti previsti dal suo profilo professionale, come definito dall’Accordo Stato-Regioni del 2001. Ciò include assistenza diretta, igiene e supporto logistico, ma non attività di competenza esclusiva dell’infermiere (es. somministrazione autonoma di farmaci). L’esecuzione di compiti inappropriati può avere conseguenze legali e professionali."
+            },
+            {
+                question: "Il termine 'Glicosuria' si riferisce a:",
+                options: ["Glucosio nel sangue", "Glucosio nelle urine", "Scarsa quantità di glucosio", "Assenza di glucosio"],
+                correct: "Glucosio nelle urine",
+                explanation: "La glicosuria è la presenza di glucosio nelle urine, un fenomeno che si verifica quando la glicemia supera la soglia renale di riassorbimento (circa 180 mg/dL). È un segno tipico di diabete mellito non controllato o di altre condizioni che alterano il metabolismo glucidico, e richiede valutazione medica per determinarne la causa sottostante."
+            },
+            {
+                question: "La sigla RSA significa:",
+                options: ["Residenza Sanitaria per Anziani", "Residenza Sanitaria Assistita", "Residenza Socio Assistita", "Ricovero Sociale Anziani"],
+                correct: "Residenza Sanitaria Assistita",
+                explanation: "RSA sta per Residenza Sanitaria Assistita, una struttura destinata a persone non autosufficienti, spesso anziani, che necessitano di assistenza sanitaria e sociale continuativa. Le RSA sono regolamentate a livello regionale e integrate nel Servizio Sanitario Nazionale per garantire cure mediche, infermieristiche e riabilitative."
+            },
+            {
+                question: "Quale dei seguenti è un rifiuto sanitario?",
+                options: ["Termometri rotti", "Garze usate per medicazioni", "Farmaci scaduti", "Flaconi per flebo vuoti"],
+                correct: "Garze usate per medicazioni",
+                explanation: "Le garze usate per medicazioni sono classificate come rifiuti sanitari pericolosi a rischio infettivo, secondo il DPR 254/2003, perché possono essere contaminate da fluidi biologici. Devono essere smaltite in contenitori appositi per prevenire la diffusione di infezioni, a differenza di termometri rotti o flaconi vuoti che rientrano in altre categorie di rifiuti."
+            },
+            {
+                question: "Il cuore è:",
+                options: ["Un apparato", "Un sistema", "Un muscolo", "Un organo"],
+                correct: "Un muscolo",
+                explanation: "Il cuore è un organo muscolare cavo, composto principalmente da tessuto muscolare striato cardiaco, noto come miocardio. La sua funzione primaria è pompare il sangue attraverso il sistema circolatorio, grazie alla contrazione ritmica e coordinata delle sue fibre muscolari, che lo rendono un muscolo unico nel suo genere."
+            },
+            {
+                question: "Quale vitamina è detta anche PP o nicotinammide?",
+                options: ["Vitamina K", "Vitamina D", "Vitamina B3", "Vitamina C"],
+                correct: "Vitamina B3",
+                explanation: "La vitamina B3, conosciuta anche come niacina o nicotinammide (e storicamente come vitamina PP, ovvero 'Pellagra Preventiva'), è essenziale per il metabolismo energetico e la sintesi di coenzimi come NAD e NADP. Una sua carenza può causare pellagra, caratterizzata da dermatite, diarrea e demenza."
+            },
+            {
+                question: "Cos’è l’encefalo?",
+                options: ["Parte del sistema nervoso nella scatola cranica", "Parte del midollo spinale", "Parte dell’epistrofeo", "Un muscolo"],
+                correct: "Parte del sistema nervoso nella scatola cranica",
+                explanation: "L’encefalo è la porzione del sistema nervoso centrale situata all’interno della scatola cranica, comprendente cervello, cervelletto e tronco encefalico. È responsabile di funzioni vitali come il pensiero, il movimento, la regolazione autonomica e la percezione sensoriale, distinguendosi dal midollo spinale che si trova nella colonna vertebrale."
+            },
+            {
+                question: "Nel caso di mal di fegato, il dolore si avverte:",
+                options: ["Al fianco destro", "Al fianco sinistro", "All’addome centrale", "Alla schiena"],
+                correct: "Al fianco destro",
+                explanation: "Il fegato è situato nella parte superiore destra dell’addome, sotto il diaframma, nella regione definita ipocondrio destro. Il dolore associato a patologie epatiche, come epatite o steatosi, si manifesta tipicamente in questa zona, spesso irradiandosi verso la spalla destra o la schiena in casi più gravi."
+            },
+            {
+                question: "La pulizia dell’ambiente dell’assistito avviene:",
+                options: ["Dopo la disinfezione", "Indipendentemente dalla disinfezione", "Prima della disinfezione", "Mai"],
+                correct: "Prima della disinfezione",
+                explanation: "La pulizia dell’ambiente è il primo passo del processo di sanificazione, poiché rimuove sporco, polvere e materia organica che potrebbero ridurre l’efficacia dei disinfettanti. Secondo le linee guida del Ministero della Salute, la disinfezione chimica o fisica deve seguire la pulizia per garantire un’eliminazione efficace di microrganismi patogeni."
+            },
+            {
+                question: "Da cosa sono costituiti i carboidrati?",
+                options: ["Carbonio, ossigeno e idrogeno", "Carbonio, idrogeno e azoto", "Carbonio e idrogeno", "Ossigeno e azoto"],
+                correct: "Carbonio, ossigeno e idrogeno",
+                explanation: "I carboidrati sono biomolecole composte da carbonio (C), idrogeno (H) e ossigeno (O), con una formula generale di tipo Cn(H₂O)m. Sono macronutrienti essenziali, fonte primaria di energia per l’organismo, e si trovano in alimenti come cereali, frutta e verdure sotto forma di zuccheri, amidi e fibre."
+            },
+            {
+                question: "Chi è l’OTA?",
+                options: ["Operatore Tecnico Ausiliario", "Operatore di Assistenza di Base", "Operatore Tecnico Addetto all’Assistenza", "Operatore Sanitario"],
+                correct: "Operatore Tecnico Addetto all’Assistenza",
+                explanation: "L’OTA (Operatore Tecnico Addetto all’Assistenza) era una figura professionale del SSN, istituita con il DPR 761/1979, con compiti di supporto logistico e assistenziale. È stata superata dall’introduzione dell’OSS nel 2001, che integra e amplia le sue funzioni, includendo anche attività di assistenza diretta alla persona."
+            },
+            {
+                question: "Ai sensi della legge 833/1978, l’attuazione del SSN compete a:",
+                options: ["Stato", "Stato, Regioni e ASL", "Stato, Regioni ed enti locali", "Solo Regioni"],
+                correct: "Stato, Regioni ed enti locali",
+                explanation: "La legge 833/1978, che istituisce il Servizio Sanitario Nazionale, prevede una gestione condivisa tra Stato, Regioni ed enti locali. Lo Stato definisce i principi fondamentali e i livelli essenziali di assistenza (LEA), le Regioni pianificano e organizzano i servizi, mentre gli enti locali (es. Comuni) collaborano nell’erogazione e nella gestione territoriale."
+            },
+            {
+                question: "Quale misura igienica NON è corretta nella preparazione dei pasti?",
+                options: ["Lavarsi le mani", "Usare guanti", "Toccare cibi con mani sporche", "Pulire le superfici"],
+                correct: "Toccare cibi con mani sporche",
+                explanation: "Toccare cibi con mani sporche è una pratica igienicamente scorretta che può causare contaminazione batterica o virale, compromettendo la sicurezza alimentare. Le norme HACCP e le linee guida del Ministero della Salute richiedono lavaggio delle mani, uso di guanti se necessario e pulizia delle superfici per prevenire rischi per la salute."
+            },
+            {
+                question: "Se un OSS rovescia acqua nel corridoio, qual è il primo intervento?",
+                options: ["Mandare qualcuno a chiamare le pulizie", "Andare a prendere asciugamani", "Chiamare le pulizie dalla postazione", "Riempire la brocca"],
+                correct: "Andare a prendere asciugamani",
+                explanation: "In caso di versamento d’acqua in un corridoio, il primo intervento dell’OSS è rimuovere il pericolo immediato per evitare cadute, andando a prendere asciugamani o stracci per asciugare. Questo rientra nei compiti di sicurezza ambientale dell’OSS, mentre chiamare le pulizie è un’azione successiva per la sanificazione completa."
+            },
+            {
+                question: "La posizione supina prevede che gli arti superiori siano:",
+                options: ["Avambraccio esteso, polso supino", "Gomito flesso, mano chiusa", "Polso flesso, mano aperta", "Braccia incrociate"],
+                correct: "Avambraccio esteso, polso supino",
+                explanation: "Nella posizione supina, il paziente è sdraiato sulla schiena con il volto verso l’alto, gli arti superiori distesi lungo il corpo e i palmi delle mani rivolti verso l’alto (supinazione del polso). Questa posizione facilita il rilassamento muscolare e l’accesso per procedure mediche o assistenziali."
+            },
+            {
+                question: "Per preservare la tolleranza dei tessuti cutanei si evita:",
+                options: ["Talco", "Vaselina bianca", "Paste all’ossido di zinco", "Creme idratanti"],
+                correct: "Talco",
+                explanation: "L’uso del talco è sconsigliato nella cura della pelle perché può seccare i tessuti cutanei, causare irritazioni o ostruire i pori, specialmente in aree umide o lesionate. Prodotti come vaselina, paste all’ossido di zinco e creme idratanti sono invece indicati per proteggere e idratare la cute, riducendo il rischio di ulcerazioni."
+            },
+            {
+                question: "Il termine 'Emoftoe' indica:",
+                options: ["Sangue nelle urine", "Sangue nell’espettorato", "Sangue nelle feci", "Sangue nel vomito"],
+                correct: "Sangue nell’espettorato",
+                explanation: "L’emoftoe è la presenza di sangue nell’espettorato, ovvero il materiale espulso con la tosse dalle vie respiratorie. È un sintomo che può essere associato a condizioni come bronchite, tubercolosi o tumori polmonari, distinguendosi dall’ematemesi (sangue nel vomito) e richiedendo un’indagine medica approfondita."
+            },
+            {
+                question: "Un soggetto ossessivo che riflette sulla sua salute si definisce:",
+                options: ["Ipocondriaco", "Ansioso", "Depresso", "Fobico"],
+                correct: "Ipocondriaco",
+                explanation: "L’ipocondria è un disturbo caratterizzato da un’ossessiva preoccupazione per la propria salute, con la convinzione infondata di soffrire di gravi malattie nonostante l’assenza di evidenze cliniche. Si distingue dall’ansia generale, dalla depressione o dalle fobie specifiche per il focus esclusivo sulla paura di essere malati."
+            },
+            {
+                question: "Quale è un gruppo primario?",
+                options: ["Studenti di una classe", "Una famiglia", "Membri di un’associazione", "Colleghi di lavoro"],
+                correct: "Una famiglia",
+                explanation: "In sociologia, un gruppo primario è caratterizzato da relazioni strette, emotive e durature, come la famiglia, che rappresenta il primo nucleo di socializzazione dell’individuo. Gruppi come studenti, colleghi o membri di associazioni sono invece gruppi secondari, basati su rapporti più formali o temporanei."
+            },
+            {
+                question: "La psicologia studia il comportamento come:",
+                options: ["Espressione di patologie", "Condizionamenti ambientali", "Espressione della personalità", "Reazioni fisiche"],
+                correct: "Espressione della personalità",
+                explanation: "La psicologia considera il comportamento come un’espressione della personalità, influenzata da fattori interni (tratti, emozioni, motivazioni) e esterni (ambiente, cultura). Sebbene i condizionamenti ambientali siano studiati (es. comportamentismo), l’approccio integrato moderno enfatizza la personalità come chiave interpretativa del comportamento."
+            },
+            {
+                question: "Quale è l’età massima per un Direttore Generale di un’Azienda Sanitaria?",
+                options: ["Non indicata", "60 anni", "65 anni", "70 anni"],
+                correct: "Non indicata",
+                explanation: "La normativa italiana (es. D.Lgs. 502/1992 e successive modifiche) non stabilisce un’età massima specifica per il ruolo di Direttore Generale di un’Azienda Sanitaria. La durata dell’incarico è regolata da contratti a termine (3-5 anni), e la nomina dipende da requisiti professionali e gestionali, non dall’età."
+            },
+            {
+                question: "La causa di revoca di un’azienda ospedaliera è:",
+                options: ["Disavanzo economico", "Grave disavanzo e perdita requisiti", "Violazione di buon andamento", "Mancanza di personale"],
+                correct: "Grave disavanzo e perdita requisiti",
+                explanation: "La revoca di un’azienda ospedaliera può avvenire per gravi disavanzi economici accompagnati dalla perdita dei requisiti minimi di accreditamento, come previsto dal D.Lgs. 502/1992 e dalle normative regionali. Un semplice disavanzo o la mancanza di personale non sono sufficienti senza una compromissione strutturale dei servizi."
+            },
+            {
+                question: "Le principali funzioni dell’OSS includono:",
+                options: ["Assistenza indiretta e sociale", "Assistenza diretta e aiuto domestico", "Solo assistenza diretta", "Gestione farmaci"],
+                correct: "Assistenza diretta e aiuto domestico",
+                explanation: "Le funzioni dell’OSS, definite dall’Accordo Stato-Regioni del 2001, comprendono l’assistenza diretta alla persona (igiene, mobilizzazione, alimentazione) e l’aiuto domestico (pulizia, gestione dell’ambiente). Non include la gestione autonoma dei farmaci, che è di competenza infermieristica, né si limita a un’assistenza esclusivamente diretta o indiretta."
+            }
+        ];
+
+        let currentQuestion = 0;
+
+        // Carica i quadratini di navigazione
+        function loadQuestionNav() {
+            const navDiv = document.getElementById("questionNav");
+            questions.forEach((_, index) => {
+                const box = document.createElement("div");
+                box.classList.add("question-box");
+                box.textContent = index + 1;
+                box.addEventListener("click", () => {
+                    showQuestion(index);
+                });
+                navDiv.appendChild(box);
+            });
+        }
+
+        // Carica il quiz
+        function loadQuiz() {
+            const quizDiv = document.getElementById("quiz");
+            questions.forEach((q, index) => {
+                const questionDiv = document.createElement("div");
+                questionDiv.classList.add("question");
+                questionDiv.id = `question-${index}`;
+                questionDiv.innerHTML = `
+                    <h3>${index + 1}. ${q.question}</h3>
+                    ${q.options.map((opt, i) => `
+                        <div class="option" data-value="${opt}">
+                            <input type="radio" name="q${index}" value="${opt}" id="q${index}_${i}">
+                            <label for="q${index}_${i}">${opt}</label>
+                            <span class="lamp" id="lamp-${index}-${i}">💡</span>
+                        </div>
+                    `).join("")}
+                    <div class="explanation" id="exp-${index}">${q.explanation}</div>
+                `;
+                quizDiv.appendChild(questionDiv);
+
+                // Aggiungi evento per accendere il quadratino
+                const radios = questionDiv.querySelectorAll(`input[name="q${index}"]`);
+                radios.forEach(radio => {
+                    radio.addEventListener("change", () => {
+                        document.querySelectorAll(".question-box")[index].classList.add("answered");
+                    });
+                });
+            });
+            showQuestion(0); // Mostra la prima domanda
+        }
+
+        // Mostra la domanda corrente
+        function showQuestion(index) {
+            document.querySelectorAll(".question").forEach(q => q.classList.remove("active"));
+            document.getElementById(`question-${index}`).classList.add("active");
+            currentQuestion = index;
+
+            // Gestione stato pulsanti
+            document.getElementById("prev").disabled = currentQuestion === 0;
+            document.getElementById("next").disabled = currentQuestion === questions.length - 1;
+        }
+
+        // Timer (30 minuti)
+        let timeLeft = 30 * 60;
+        function startTimer() {
+            const timer = setInterval(() => {
+                timeLeft--;
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                document.getElementById("time").textContent = 
+                    `${minutes}:${seconds < 10 ? "0" + seconds : seconds}`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    checkAnswers();
+                }
+            }, 1000);
+        }
+
+        // Controllo risposte e feedback visivo
+        function checkAnswers() {
+            let score = 0;
+            questions.forEach((q, index) => {
+                const selected = document.querySelector(`input[name="q${index}"]:checked`);
+                const options = document.querySelectorAll(`#question-${index} .option`);
+
+                options.forEach(option => {
+                    const value = option.getAttribute("data-value");
+                    if (value === q.correct) {
+                        option.classList.add("correct");
+                        const lamp = option.querySelector(".lamp");
+                        lamp.style.display = "inline";
+                        lamp.addEventListener("click", () => {
+                            const explanation = document.getElementById(`exp-${index}`);
+                            explanation.style.display = "block";
+                        });
+                    }
+                });
+
+                if (selected) {
+                    if (selected.value === q.correct) {
+                        score++;
+                    } else {
+                        selected.parentElement.classList.add("wrong");
+                    }
+                }
+            });
+
+            const resultDiv = document.getElementById("result");
+            resultDiv.textContent = `Punteggio: ${score} / ${questions.length}`;
+            document.getElementById("submit").disabled = true;
+            document.getElementById("prev").disabled = true;
+            document.getElementById("next").disabled = true;
+
+            // Disabilita i radio button dopo l'invio
+            document.querySelectorAll("input[type=radio]").forEach(radio => {
+                radio.disabled = true;
+            });
+        }
+
+        // Inizializzazione
+        window.onload = () => {
+            loadQuestionNav();
+            loadQuiz();
+            startTimer();
+
+            document.getElementById("prev").addEventListener("click", () => {
+                if (currentQuestion > 0) showQuestion(currentQuestion - 1);
+            });
+
+            document.getElementById("next").addEventListener("click", () => {
+                if (currentQuestion < questions.length - 1) showQuestion(currentQuestion + 1);
+            });
+
+            document.getElementById("submit").addEventListener("click", checkAnswers);
+        };
+    </script>
+</body>
+</html>
